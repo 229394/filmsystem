@@ -1,0 +1,64 @@
+#端口
+server:
+  port: 8080
+
+#spring连接数据库配置
+spring:
+  datasource:
+    username: system
+    password: 123456
+    url: jdbc:oracle:thin:@localhost:1521:ORCL
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  mvc:
+    static-path-pattern: static/**
+
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    check-template-location: true
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+    cache: false
+
+  #文件上传相关设置
+  servlet:
+    multipart:
+        max-file-size: 50MB
+        max-request-size: 200MB
+
+   #devtools插件
+#  devtools:
+#    livereload:
+#      enabled: true #是否支持livereload
+#      port: 35729
+#    restart:
+#      enabled: true #是否支持热部署
+
+  #spring-aop配置
+  aop:
+    #启用@Aspectj注解驱动的切面,允许Spring创建基于类的代理
+    auto: true
+    proxy-target-class: true
+
+#mybatis配置环境
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: com.autumn.filmsystem.entity
+
+#mybatis分页插件pagehelper设置
+pagehelper:
+  #pagehelperDialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  helper-dialect: oracle
+  #params: count=countSql
+
+#显示sql
+logging:
+  level:
+    com:
+      autumn:
+        filmsystem:
+          mapper: debug

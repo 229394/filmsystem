@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autumn.filmsystem.mapper.OrderMapper">
+
+    <resultMap id="baseMap" type="com.autumn.filmsystem.entity.Order">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="orderNum" column="orderNum" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="VARCHAR"/>
+        <result property="totalPrice" column="totalPrice" jdbcType="VARCHAR"/>
+        <result property="orderTime" column="orderTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="com.autumn.filmsystem.entity.Order">
+        SELECT * FROM tb_order
+    </select>
+
+    <!-- 条件查询:根据用户名和电影名称查询订单 -->
+    <select id="findByPage" parameterType="com.autumn.filmsystem.entity.Order" resultMap="baseMap">
+        SELECT * FROM tb_order WHERE 1=1
+        <if test="username != null">
+            AND username LIKE '%'||#{username}||'%'
+        </if>
+        <if test="title != null">
+            AND title LIKE '%'||#{title}||'%'
+        </if>
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="findById" parameterType="int" resultMap="baseMap">
+        SELECT * FROM tb_order WHERE id = #{id}
+    </select>
+
+    <!--&lt;!&ndash; 添加数据 &ndash;&gt;-->
+    <!--<insert id="create" parameterType="com.autumn.filmsystem.entity.Order">-->
+        <!--INSERT INTO tb_order(username,title,orderNum,price,totalPrice,orderTime)-->
+          <!--VALUES(#{username}, #{title}, #{orderNum}, #{price}, #{totalPrice}, #{orderTime})-->
+    <!--</insert>-->
+
+     <!--&lt;!&ndash; 更新数据 &ndash;&gt;-->
+    <!--<update id="update" parameterType="com.autumn.filmsystem.entity.Order">-->
+        <!--UPDATE tb_order-->
+        <!--<set>-->
+            <!--<if test="orderNum != null">-->
+                <!--orderNum = #{orderNum},-->
+            <!--</if>-->
+            <!--<if test="price != null">-->
+                <!--price = #{price},-->
+            <!--</if>-->
+        <!--</set>-->
+        <!--WHERE id = #{id}-->
+    <!--</update>-->
+
+    <!-- 删除 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM tb_order WHERE id = #{id}
+    </delete>
+
+</mapper>

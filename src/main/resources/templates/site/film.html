@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>电影列表界面</title>
+    <link rel="stylesheet" th:href="@{../static/lib/element-ui/lib/theme-chalk/index.css}"/>
+    <link rel="stylesheet" th:href="@{../static/lib/font/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{../static/css/film.css}"/>
+    <link rel="stylesheet" th:href="@{../static/css/public.css}"/>
+</head>
+<body>
+<div id="app">
+    <!-- header -->
+    <el-menu mode="horizontal" :default-active="activeIndex">
+        <el-menu-item index="0" id="logo">后台管理系统</el-menu-item>
+        <el-menu-item index="1"><a href="/admin/index">首页</a></el-menu-item>
+        <el-menu-item index="2"><a href="/userInfo">用户列表</a></el-menu-item>
+        <el-menu-item index="3"><a href="/film">影片列表</a></el-menu-item>
+        <el-menu-item index="4"><a href="/order">订单列表</a></el-menu-item>
+        <el-menu-item index="5"><a href="/review">留言列表</a></el-menu-item>
+        <el-menu-item id="author" index="6">
+            <img class="el-tooltip" src="https://ss0.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2462453021,1296191525&fm=26&gp=0.jpg" width="50px" height="50px"/>
+            <el-dropdown>
+                <span class="el-dropdown-link">autumn_leaf<i class="el-icon-arrow-down el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>首页</el-dropdown-item>
+                    <el-dropdown-item divided><a href="/logout">退出</a></el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-menu-item>
+    </el-menu>
+
+    <div id="main">
+        <el-col>
+            <el-card shadow="hover">
+                <!-- 搜索框 -->
+                <el-form :inline="true" :model="searchEntity" class="demo-form-inline">
+                    <el-form-item label="电影标题">
+                        <el-input v-model="searchEntity.title" placeholder="标题"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电影类别">
+                        <el-input v-model="searchEntity.filmType" placeholder="类别"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button
+                                type="primary"
+                                icon="el-icon-search"
+                                @click="reloadList">查询
+                        </el-button>
+                        <el-button
+                                icon="el-icon-delete"
+                                @click="searchEntity={}"
+                                type="primary" plain>清空
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+                <!-- 功能按钮 -->
+                <div>
+                    <el-row>
+                        <el-button @click="saveBtn" type="primary" icon="el-icon-plus">新增</el-button>
+                        <el-button type="primary" plain icon="el-icon-edit" @click="editSelect">编辑</el-button>
+                        <el-button type="danger" plain icon="el-icon-delete" @click="deleteSelect(multipleSelection)">删除
+                        </el-button>
+                        <el-button icon="el-icon-refresh"
+                                   @click="search(pageConf.pageCode,pageConf.pageSize)">刷新
+                        </el-button>
+                    </el-row>
+                    <span class="el-tag avue-tip">
+                    <i class="el-icon-info"></i>
+                    <span class="name">
+                        当前表格已选择
+                        <span class="count">{{count}}</span>
+                        项
+                    </span>
+                    <span @click.prevent="clearSelect()" style="cursor:pointer">&nbsp;&nbsp;清空</span>
+                </span>
+                </div>
+                <!-- 列表 -->
+                <el-table
+                        ref="film"
+                        :data="film"
+                        border
+                        tooltip-effect="dark"
+                        style="width: 100%"
+                        @selection-change="selectChange">
+                    <el-table-column
+                            ref="selection"
+                            align="center"
+                            type="selection"
+                            width="50">
+                    </el-table-column>
+                    <el-table-column
+                            prop="id"
+                            align="center"
+                            sortable
+                            fixed
+                            label="影片ID"
+                            width="50">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="title"
+                            sortable
+                            label="标题"
+                            width="140"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="director"
+                            label="导演"
+                            width="120"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="actor"
+                            label="主演"
+                            width="120"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="filmType"
+                            label="类别"
+                            width="70">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="filmTime"
+                            label="时长"
+                            width="80">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="description"
+                            label="描述"
+                            width="240"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column align="center" label="电影图片" width="160">
+                        <template scope="scope">
+                            <img :src="scope.row.image" class="image" width="120" height="160"/>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" fixed="right">
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="primary"
+                                    @click="handleEdit(scope.row.id)">编辑
+                            </el-button>
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    @click="handleDelete(scope.row.id)">删除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <el-pagination
+                            background
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="pageConf.pageCode"
+                            :page-sizes="pageConf.pageOption"
+                            :page-size="pageConf.pageSize"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="pageConf.totalPage">
+                    </el-pagination>
+                </div>
+                <br/>
+                <br/>
+            </el-card>
+        </el-col>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+        <el-container>
+            <el-footer>
+                <el-row :gutter="20">
+                    <el-col :span="8" :offset="10">
+                        <div class="footer-inner">
+                            <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+                                <span class="with-love">
+                                    <i class="fa fa-heartbeat"></i>
+                                </span>
+                                <span class="author" itemprop="copyrightHolder">autumn_leaf</span>
+                            </div>
+                            <label>星阳电影售票后台管理系统欢迎您!</label>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-footer>
+        </el-container>
+    </div>
+
+
+    <!-- 新增按钮的dialog -->
+    <el-dialog title="添加信息" :visible.sync="showSave" width="30%" :close-on-click-modal="false"
+               :close-on-press-escape="false">
+        <el-form class="editor-form" :model="editor" status-icon ref="editor"
+                 label-width="100px">
+            <el-form-item prop="title" label="电影标题" class="is-required"
+                          :rules="[{ required: true, message: '电影标题不能为空'}]">
+                <el-input v-model="editor.title" placeholder="电影标题"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="director" label="导演" class="is-required"
+                          :rules="[{ required: true, message: '导演不能为空'}]">
+                <el-input v-model="editor.director" placeholder="导演"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="actor" label="主演" class="is-required"
+                          :rules="[{ required: true, message: '主演不能为空'}]">
+                <el-input v-model="editor.actor" placeholder="主演"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="filmType" label="类别" class="is-required"
+                          :rules="[{ required: true, message: '电影类别不能为空'}]">
+                <el-input v-model="editor.filmType" placeholder="类别"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="filmTime" label="时长" class="is-required"
+                          :rules="[{ required: true, message: '电影时长不能为空'}]">
+                <el-input v-model="editor.filmTime" placeholder="时长"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="picture" label="图片">
+                <el-upload
+                        ref="upload"
+                        action="/upload"
+                        multiple
+                        name="picture"
+                        list-type="picture-card"
+                        :limit="1"
+                        :on-exceed="onExceed"
+                        :file-list="fileList"
+                        :before-upload="beforeUpload"
+                        :on-preview="handlePreview"
+                        :on-success="handleSuccess"
+                        :on-remove="handleRemove">
+                    <i class="el-icon-plus"></i>
+                </el-upload>
+                <el-dialog :visible.sync="dialogVisible">
+                    <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
+            </el-form-item>
+            <el-form-item prop="description" label="电影简述" class="is-required"
+                          :rules="[{ required: true, message: '电影简述不能为空'}]">
+                <el-input v-model="editor.description" placeholder="简述"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="showSave = false">取消</el-button>
+            <el-button type="primary" @click="save('editor')">新增</el-button>
+        </div>
+    </el-dialog>
+
+    <!-- 编辑按钮的dialog -->
+    <el-dialog title="编辑信息" :visible.sync="showEditor" width="30%" :close-on-click-modal="false"
+               :close-on-press-escape="false">
+        <el-form class="editor-form" :model="editor" status-icon ref="editor"
+                 label-width="100px">
+            <el-form-item prop="title" label="电影标题" class="is-required"
+                          :rules="[{ required: true, message: '电影标题不能为空'}]">
+                <el-input v-model="editor.title" placeholder="电影标题"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="director" label="导演" class="is-required"
+                          :rules="[{ required: true, message: '导演不能为空'}]">
+                <el-input v-model="editor.director" placeholder="导演"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="actor" label="主演" class="is-required"
+                          :rules="[{ required: true, message: '主演不能为空'}]">
+                <el-input v-model="editor.actor" placeholder="主演"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="filmType" label="类别" class="is-required"
+                          :rules="[{ required: true, message: '电影类别不能为空'}]">
+                <el-input v-model="editor.filmType" placeholder="类别"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="filmTime" label="时长" class="is-required"
+                          :rules="[{ required: true, message: '电影时长不能为空'}]">
+                <el-input v-model="editor.filmTime" placeholder="时长"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="picture" label="图片">
+                <el-upload
+                        ref="upload"
+                        action="/upload"
+                        multiple
+                        name="picture"
+                        list-type="picture-card"
+                        :limit="1"
+                        :on-exceed="onExceed"
+                        :file-list="fileList"
+                        :before-upload="beforeUpload"
+                        :on-preview="handlePreview"
+                        :on-success="handleSuccess"
+                        :on-remove="handleRemove">
+                    <i class="el-icon-plus"></i>
+                </el-upload>
+                <el-dialog :visible.sync="dialogVisible">
+                    <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
+            </el-form-item>
+            <el-form-item prop="description" label="电影简述" class="is-required"
+                          :rules="[{ required: true, message: '电影简述不能为空'}]">
+                <el-input v-model="editor.description" placeholder="简述"
+                          auto-complete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="showEditor = false">取消</el-button>
+            <el-button type="primary" @click="sureEdit('editor')">修改</el-button>
+        </div>
+    </el-dialog>
+
+</div>
+</body>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/element-ui/lib/index.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue-resource.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vuex.min.js}"></script>
+<script type="text/javascript" th:src="@{../static/js/film.js}"></script>
+</html>

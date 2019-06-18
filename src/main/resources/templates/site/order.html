@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单列表</title>
+    <link rel="stylesheet" th:href="@{../static/lib/element-ui/lib/theme-chalk/index.css}"/>
+    <link rel="stylesheet" th:href="@{../static/lib/font/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{../static/css/film.css}"/>
+    <link rel="stylesheet" th:href="@{../static/css/public.css}"/>
+</head>
+<body>
+<div id="app">
+    <!-- header -->
+    <el-menu mode="horizontal" :default-active="activeIndex">
+        <el-menu-item index="0" id="logo">后台管理系统</el-menu-item>
+        <el-menu-item index="1"><a href="/admin/index">首页</a></el-menu-item>
+        <el-menu-item index="2"><a href="/userInfo">用户列表</a></el-menu-item>
+        <el-menu-item index="3"><a href="/film">影片列表</a></el-menu-item>
+        <el-menu-item index="4"><a href="/order">订单列表</a></el-menu-item>
+        <el-menu-item index="5"><a href="/review">留言列表</a></el-menu-item>
+        <el-menu-item id="author" index="6">
+            <img class="el-tooltip" src="https://ss0.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2462453021,1296191525&fm=26&gp=0.jpg" width="50px" height="50px"/>
+            <el-dropdown>
+                <span class="el-dropdown-link">autumn_leaf<i class="el-icon-arrow-down el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>首页</el-dropdown-item>
+                    <el-dropdown-item divided><a href="/logout">退出</a></el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-menu-item>
+    </el-menu>
+
+    <div id="main">
+        <el-col>
+            <el-card shadow="hover">
+                <!-- 搜索框 -->
+                <el-form :inline="true" :model="searchEntity" class="demo-form-inline">
+                    <el-form-item label="用户名">
+                        <el-input v-model="searchEntity.username" placeholder="用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="影片名称">
+                        <el-input v-model="searchEntity.title" placeholder="名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button
+                                type="primary"
+                                icon="el-icon-search"
+                                @click="reloadList">查询
+                        </el-button>
+                        <el-button
+                                icon="el-icon-delete"
+                                @click="searchEntity={}"
+                                type="primary" plain>清空
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+                <!-- 功能按钮 -->
+                <div>
+                    <el-row>
+                        <el-button type="danger" plain icon="el-icon-delete" @click="deleteSelect(multipleSelection)">删除
+                        </el-button>
+                        <el-button icon="el-icon-refresh"
+                                   @click="search(pageConf.pageCode,pageConf.pageSize)">刷新
+                        </el-button>
+                    </el-row>
+                    <span class="el-tag avue-tip">
+                    <i class="el-icon-info"></i>
+                    <span class="name">
+                        当前表格已选择
+                        <span class="count">{{count}}</span>
+                        项
+                    </span>
+                    <span @click.prevent="clearSelect()" style="cursor:pointer">&nbsp;&nbsp;清空</span>
+                </span>
+                </div>
+                <!-- 列表 -->
+                <el-table
+                        ref="order"
+                        :data="order"
+                        border
+                        tooltip-effect="dark"
+                        style="width: 100%"
+                        @selection-change="selectChange">
+                    <el-table-column
+                            ref="selection"
+                            align="center"
+                            type="selection"
+                            width="60">
+                    </el-table-column>
+                    <el-table-column
+                            prop="id"
+                            align="center"
+                            sortable
+                            fixed
+                            label="订单ID"
+                            width="120">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="username"
+                            sortable
+                            label="用户名"
+                            width="120">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="title"
+                            label="影片名称"
+                            width="180"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="orderNum"
+                            label="订票数量(张)"
+                            width="120"
+                            show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            sortable
+                            prop="price"
+                            label="票价(元)"
+                            width="120">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="totalPrice"
+                            label="总价(元)"
+                            width="120">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            prop="orderTime"
+                            label="订单时间"
+                            width="120">
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" fixed="right">
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    @click="handleDelete(scope.row.id)">删除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <el-pagination
+                            background
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="pageConf.pageCode"
+                            :page-sizes="pageConf.pageOption"
+                            :page-size="pageConf.pageSize"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="pageConf.totalPage">
+                    </el-pagination>
+                </div>
+                <br/>
+                <br/>
+            </el-card>
+        </el-col>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+        <el-container>
+            <el-footer>
+                <el-row :gutter="20">
+                    <el-col :span="8" :offset="10">
+                        <div class="footer-inner">
+                            <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+                                <span class="with-love">
+                                    <i class="fa fa-heartbeat"></i>
+                                </span>
+                                <span class="author" itemprop="copyrightHolder">autumn_leaf</span>
+                            </div>
+                            <label>星阳电影售票后台管理系统欢迎您!</label>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-footer>
+        </el-container>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/element-ui/lib/index.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue-resource.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vuex.min.js}"></script>
+<script type="text/javascript" th:src="@{../static/js/order.js}"></script>
+</html>

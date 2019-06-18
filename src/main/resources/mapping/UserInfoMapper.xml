@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.autumn.filmsystem.mapper.UserInfoMapper">
+
+    <resultMap id="baseMap" type="com.autumn.filmsystem.entity.UserInfo">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="birthday" column="birthday" jdbcType="VARCHAR"/>
+        <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="com.autumn.filmsystem.entity.UserInfo">
+        SELECT * FROM tb_userInfo
+    </select>
+
+    <!-- 通过昵称和联系方式进行条件查询 -->
+    <select id="findByPage" parameterType="com.autumn.filmsystem.entity.UserInfo" resultMap="baseMap">
+        SELECT * FROM tb_userInfo WHERE 1=1
+        <if test="nickname != null">
+            AND nickname LIKE '%'||#{nickname}||'%'
+        </if>
+        <if test="phone != null">
+            AND phone LIKE '%'||#{phone}||'%'
+        </if>
+    </select>
+
+    <!-- 根据用户信息编号查询 -->
+    <select id="findById" parameterType="int" resultMap="baseMap">
+        SELECT * FROM tb_userInfo WHERE id = #{id}
+    </select>
+
+    <!-- 更新数据 -->
+    <update id="update" parameterType="com.autumn.filmsystem.entity.UserInfo">
+        UPDATE tb_userInfo
+        <set>
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM tb_userInfo WHERE id = #{id}
+    </delete>
+
+</mapper>

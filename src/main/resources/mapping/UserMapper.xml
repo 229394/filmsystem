@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autumn.filmsystem.mapper.UserMapper">
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="user">
+        SELECT * FROM TB_USER
+    </select>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultType="user" parameterType="int">
+        SELECT * FROM TB_USER WHERE id = #{id}
+    </select>
+
+    <!-- 创建 -->
+    <insert id="create" parameterType="com.autumn.filmsystem.entity.User">
+        INSERT INTO TB_USER(username, password) VALUES (#{username}, #{password})
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.autumn.filmsystem.entity.User">
+        UPDATE TB_USER SET WHERE 1=1
+        <if test="username != null">
+              username = #{username},
+        </if>
+        <if test="password != null">
+              password = #{password}
+        </if>
+          WHERE id = #{id}
+    </update>
+
+    <!-- 根据用户名查询 -->
+    <select id="findByName" parameterType="String" resultType="user">
+        SELECT * FROM TB_USER WHERE username = #{username}
+    </select>
+
+</mapper>

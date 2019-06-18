@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autumn.filmsystem.mapper.FilmMapper">
+
+    <resultMap id="baseMap" type="com.autumn.filmsystem.entity.Film">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="director" column="director" jdbcType="VARCHAR"/>
+        <result property="actor" column="actor" jdbcType="VARCHAR"/>
+        <result property="filmType" column="filmType" jdbcType="VARCHAR"/>
+        <result property="filmTime" column="filmTime" jdbcType="VARCHAR"/>
+        <result property="image" column="image" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="com.autumn.filmsystem.entity.Film">
+        SELECT * FROM tb_film
+    </select>
+
+    <!-- 条件查询 -->
+    <select id="findByPage" parameterType="com.autumn.filmsystem.entity.Film" resultMap="baseMap">
+        SELECT * FROM tb_film WHERE 1=1
+        <if test="title != null">
+            AND title LIKE '%'||#{title}||'%'
+        </if>
+        <if test="filmType != null">
+            AND filmType LIKE '%'||#{filmType}||'%'
+        </if>
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="findById" parameterType="int" resultMap="baseMap">
+        SELECT * FROM tb_film WHERE id = #{id}
+    </select>
+
+    <!-- 添加数据 -->
+    <insert id="create" parameterType="com.autumn.filmsystem.entity.Film">
+        INSERT INTO tb_film(title,director,actor,filmType,filmTime,image,description)
+          VALUES(#{title}, #{director}, #{actor}, #{filmType}, #{filmTime}, #{image}, #{description})
+    </insert>
+
+    <!-- 更新数据 -->
+    <update id="update" parameterType="com.autumn.filmsystem.entity.Film">
+        UPDATE tb_film
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="director != null">
+                director = #{director},
+            </if>
+            <if test="actor != null">
+                actor = #{actor},
+            </if>
+            <if test="filmType != null">
+                filmType = #{filmType},
+            </if>
+            <if test="filmTime != null">
+                filmTime = #{filmTime},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM tb_film WHERE id = #{id}
+    </delete>
+
+</mapper>

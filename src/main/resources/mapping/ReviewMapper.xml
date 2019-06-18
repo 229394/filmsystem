@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autumn.filmsystem.mapper.ReviewMapper">
+
+    <resultMap id="baseMap" type="com.autumn.filmsystem.entity.Review">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="score" column="score" jdbcType="VARCHAR"/>
+        <result property="reviewTime" column="reviewTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="com.autumn.filmsystem.entity.Review">
+        SELECT * FROM tb_review
+    </select>
+
+    <!-- 条件查询:根据用户名和电影名称查询 -->
+    <select id="findByPage" parameterType="com.autumn.filmsystem.entity.Review" resultMap="baseMap">
+        SELECT * FROM tb_review WHERE 1=1
+        <if test="username != null">
+            AND username LIKE '%'||#{username}||'%'
+        </if>
+        <if test="title != null">
+            AND title LIKE '%'||#{title}||'%'
+        </if>
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="findById" parameterType="int" resultMap="baseMap">
+        SELECT * FROM tb_review WHERE id = #{id}
+    </select>
+
+    <!--&lt;!&ndash; 添加数据 &ndash;&gt;-->
+    <!--<insert id="create" parameterType="com.autumn.filmsystem.entity.Film">-->
+        <!--INSERT INTO tb_review(userId,filmId,content,reviewTime)-->
+          <!--VALUES(#{userId}, #{filmId}, #{content}, #{reviewTime})-->
+    <!--</insert>-->
+
+    <!-- 更新数据 -->
+    <!--<update id="update" parameterType="com.autumn.filmsystem.entity.Review">-->
+        <!--UPDATE tb_review-->
+        <!--<set>-->
+            <!--<if test="filmId != null">-->
+                <!--filmId = #{filmId},-->
+            <!--</if>-->
+            <!--<if test="content != null">-->
+                <!--content = #{content},-->
+            <!--</if>-->
+        <!--</set>-->
+        <!--WHERE id = #{id}-->
+    <!--</update>-->
+
+    <!-- 删除 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM tb_review WHERE id = #{id}
+    </delete>
+
+</mapper>

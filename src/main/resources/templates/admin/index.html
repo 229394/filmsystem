@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+    <meta charset="UTF-8">
+    <title>管理员主界面</title>
+    <link rel="stylesheet" th:href="@{../static/lib/element-ui/lib/theme-chalk/index.css}"/>
+    <link rel="stylesheet" th:href="@{../static/lib/font/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{../static/css/index.css}"/>
+</head>
+<body>
+
+<div id="app">
+    <!-- header -->
+    <el-menu mode="horizontal" :default-active="activeIndex">
+        <el-menu-item index="0" id="logo">后台管理系统</el-menu-item>
+        <el-menu-item index="1"><a href="/admin/index">首页</a></el-menu-item>
+        <el-menu-item index="2"><a href="/userInfo">用户列表</a></el-menu-item>
+        <el-menu-item index="3"><a href="/film">影片列表</a></el-menu-item>
+        <el-menu-item index="4"><a href="/order">订单列表</a></el-menu-item>
+        <el-menu-item index="5"><a href="/review">留言列表</a></el-menu-item>
+        <el-menu-item id="author" index="6">
+            <img class="el-tooltip" src="https://ss0.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2462453021,1296191525&fm=26&gp=0.jpg" width="50px" height="50px"/>
+            <el-dropdown>
+                  <span class="el-dropdown-link">autumn_leaf<i class="el-icon-arrow-down el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>首页</el-dropdown-item>
+                    <el-dropdown-item divided><a href="/logout">退出</a></el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-menu-item>
+    </el-menu>
+
+     <!--main-->
+    <div id="main">
+        <el-row :gutter="20">
+            <el-col :span="20" :offset="7">
+                <el-container>
+                    <div>
+                        <!--<img :src="image/1.jpg" height="320" width="550">-->
+                        <h3>后端技术框架:SpringBoot+Element UI+Vue.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&mdash;&mdash;&nbsp;by autumn_leaf</h3>
+                    </div>
+                </el-container>
+            </el-col>
+        </el-row>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+        <el-container>
+            <el-footer>
+                <el-row :gutter="20">
+                    <el-col :span="8" :offset="10">
+                        <div class="footer-inner">
+                            <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+                                <span class="with-love">
+                                    <i class="fa fa-heartbeat"></i>
+                                </span>
+                                <span class="author" itemprop="copyrightHolder">autumn_leaf</span>
+                            </div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-footer>
+        </el-container>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/element-ui/lib/index.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vue-resource.js}"></script>
+<script type="text/javascript" th:src="@{../static/lib/vue/vuex.min.js}"></script>
+<script type="text/javascript" th:src="@{../static/js/index.js}"></script>
+</html>
